@@ -9,7 +9,6 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const { db } = require('./db');
-const validateRegistration = require('./validateRegistration');
 
 // *****************************************************
 // <!-- Section 2 : App Settings -->
@@ -44,6 +43,10 @@ app.use(
 // <!-- Section 3 : API Routes -->
 // *****************************************************
 
+app.get('/welcome', (req, res) => {
+  res.json({ status: 'success', message: 'Welcome!' });
+});
+
 app.get('/', (req, res) => {
   res.redirect('/home');
 });
@@ -57,10 +60,9 @@ app.post('/register', async (req, res) => {
   const password = req.body.password;
   const email = req.body.email;
 
-  const validationError = validateRegistration(username, password, email);
-  if (validationError) {
+  if (!username || !password) {
     return res.status(400).render('pages/register', {
-      message: validationError,
+      message: 'Username and password are required',
       error: true,
     });
   }
@@ -73,13 +75,13 @@ app.post('/register', async (req, res) => {
     );
     res.redirect('/login');
   } catch (err) {
+    console.log(err);
     if (err.code === '23505') {
       return res.status(400).render('pages/register', {
         message: 'Username or email is already taken',
         error: true,
       });
     }
-    console.log(err);
     res.status(500).render('pages/register', {
       message: 'Registration failed',
       error: true,

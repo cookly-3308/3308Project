@@ -9,11 +9,11 @@ if (
 }
 
 const db = pgp({
-  host: process.env.POSTGRES_HOST || 'db',
+  host: process.env.POSTGRES_HOST,
   port: Number(process.env.POSTGRES_PORT || 5432),
   database,
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
 });
 
-module.exports = { db, pgp };
+module.exports = {db, pgp};
