@@ -6,6 +6,12 @@
       <h2 class="text-center mb-2" style="color: #27372b;">Create an Account</h2>
       <p class="text-center text-muted mb-4">Join Cookly</p>
 
+        {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            {{message}}
+        </div>
+        {{/if}}
+
       <form action="/register" method="POST">
 
         <div class="mb-3">
