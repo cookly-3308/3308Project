@@ -41,10 +41,14 @@ describe('Registration route', () => {
       expect(res).to.have.status(302);
       expect(res).to.redirectTo(/\/login$/);
 
-      const user = await db.one(
+      const users = await db.any(
         'SELECT * FROM users WHERE username = $1',
         [username]
       );
+
+      expect(users).to.have.lengthOf(1);
+
+      const user = users[0];
 
       expect(user.email).to.equal(email);
       expect(user.password_hash.trim()).to.not.equal(password);
