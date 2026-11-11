@@ -9,6 +9,7 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const { db } = require('./db');
+const validateRegistration = require('./validateRegistration');
 
 // *****************************************************
 // <!-- Section 2 : App Settings -->
@@ -60,7 +61,7 @@ app.post('/register', async (req, res) => {
   const password = req.body.password;
   const email = req.body.email;
 
-  if (!username || !password) {
+  if (!validateRegistration({username, password})) {
     return res.status(400).render('pages/register', {
       message: 'Username and password are required',
       error: true,
