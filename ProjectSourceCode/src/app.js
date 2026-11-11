@@ -140,10 +140,45 @@ const auth = (req, res, next) => {
   next();
 };
 
+//Temp bypass so I can look at my pantry page without having to log in
+if(process.env.NODE_ENV === 'development') {
+
+  app.get('/pantry-preview', (req, res) => {
+
+    const ingredients = [
+
+      { name: 'Eggs', quantity: 12, unit: 'pieces'},
+      { name: 'Milk', quantity: 1, unit: 'gallon'},
+      { name: 'Tomatoes', quantity: 4, unit: 'pieces'},
+      { name: 'Cheese', quantity: 2, unit: 'cups'},
+      { name: 'Chicken', quantity: 1, unit: 'pound'}
+
+    ];
+
+    res.render('pages/pantry', {
+
+      layout: false,
+      username: 'TestUser',
+      ingredients: ingredients
+
+    });
+
+  });
+
+}
+
 app.use(auth);
 
 app.get('/home', (req, res) => {
   res.render('pages/home', {
+    username: req.session.user.username,
+  });
+});
+
+// Pantry Page
+app.get('/pantry', (req, res) => {
+  res.render('pages/pantry', {
+    layout: false,
     username: req.session.user.username,
   });
 });

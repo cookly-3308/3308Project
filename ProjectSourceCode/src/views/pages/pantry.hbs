@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Pantry - Cookly</title>
+</head>
+<body>
+  <h1>My Pantry</h1>
+  <p>Welcome to your pantry, {{username}}!</p>
+  <p>Here you can view and manage your ingredients.</p>
+
+  <h2>My Ingredients</h2>
+  
+  {{#each ingredients}}
+    <div class = "ingredient-card">
+        <h3>{{this.name}}</h3>
+        <p>Quantity: {{this.quantity}} {{this.unit}}</p>
+    </div>
+  {{else}}
+    <p>No ingredients added yet.</p>
+  {{/each}}
+
+</body>
+</html>
