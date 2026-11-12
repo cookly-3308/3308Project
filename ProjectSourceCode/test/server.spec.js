@@ -139,3 +139,12 @@ describe('Protected home page (extra credit)', () => {
     }
   });
 });
+
+describe('Login redirect', () => {
+  it('redirects unauthenticated users to /login', async () => {
+    const res = await chai.request(app).get('/home').redirects(0);
+
+    expect(res).to.have.status(302);
+    expect(res).to.have.header('location', '/login');
+  });
+});
