@@ -148,3 +148,13 @@ describe('Login redirect', () => {
     expect(res).to.have.header('location', '/login');
   });
 });
+
+describe('Login page', () => {
+  it('renders the login form', async () => {
+    const res = await chai.request(app).get('/login');
+
+    expect(res).to.have.status(200);
+    expect(res).to.be.html;
+    expect(res.text).to.include('Login to Cookly');
+  });
+});
