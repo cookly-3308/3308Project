@@ -134,20 +134,38 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+
 const auth = (req, res, next) => {
+  // Development-only bypass for viewing frontend pages
+  const devBypass =
+    process.env.NODE_ENV === 'development' &&
+    process.env.DEV_BYPASS_AUTH === 'true';
+
+  const previewPages = ['/home', '/pantry', '/recipes'];
+
+  if (devBypass && previewPages.includes(req.path)) {
+    return next();
+  }
+
+  // Normal authentication
   if (!req.session.user) {
     return res.redirect('/login');
   }
+
   next();
 };
 
 app.use(auth);
 
+
+
 app.get('/home', (req, res) => {
   res.render('pages/home', {
-    username: req.session.user.username,
+    username: req.session.user?.username || 'Test User',
   });
 });
+
 
 const sampleRecipes = [
   {
