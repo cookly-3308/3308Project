@@ -97,3 +97,6 @@ A rejected registration inserts no row.
 - The suite can be run repeatedly without any manual database changes.
 
 `.env.test` is listed in `.gitignore` and must not be committed.
+
+
+- **Extra credit (protected `/home`):** a signed-out request redirects `302` to `/login`; after a real login with a Chai HTTP agent, `/home` returns `200` and shows the username. A fixture user is inserted in `before` and deleted in `after`.

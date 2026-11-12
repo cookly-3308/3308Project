@@ -25,8 +25,6 @@ describe('Welcome route', () => {
 
 
 describe('Registration route', () => {
-  // A unique username and email per run, so leftover rows from an earlier
-  // run can never collide with this one.
   const runId = randomUUID().slice(0, 8);
   const username = `lab10_${runId}`;
   const email = `lab10_${runId}@example.com`;
@@ -38,8 +36,6 @@ describe('Registration route', () => {
       email,
     ]);
 
-  // Targeted cleanup: only this test's user is removed, before and after
-  // every test (afterEach also runs when a test fails).
   beforeEach(deleteTestUser);
   afterEach(deleteTestUser);
 
@@ -51,11 +47,9 @@ describe('Registration route', () => {
       .type('form')
       .send({username, password, email});
 
-    // Documented success response: 302 redirect to /login
     expect(res).to.have.status(302);
     expect(res).to.redirectTo(/\/login$/);
 
-    // Exactly one matching row with the expected fields
     const users = await db.any('SELECT * FROM users WHERE username = $1', [
       username,
     ]);
@@ -65,7 +59,6 @@ describe('Registration route', () => {
     expect(user.username).to.equal(username);
     expect(user.email).to.equal(email);
 
-    // Password is stored as a bcrypt hash, never as plain text
     const storedHash = user.password_hash.trim();
     expect(storedHash).to.not.equal(password);
     expect(await bcrypt.compare(password, storedHash)).to.equal(true);
@@ -79,7 +72,6 @@ describe('Registration route', () => {
       .type('form')
       .send({username, email});
 
-    // Documented rejection response: 400 with the error message (not a 500)
     expect(res).to.have.status(400);
     expect(res).to.be.html;
     expect(res.text).to.include('Username and password are required');
@@ -89,5 +81,61 @@ describe('Registration route', () => {
       username,
     ]);
     expect(users).to.have.lengthOf(0);
+  });
+});
+
+describe('Protected home page (extra credit)', () => {
+  const runId = randomUUID().slice(0, 8);
+  const fixtureUser = {
+    username: `lab10_home_${runId}`,
+    password: 'homePassword123',
+  };
+
+  before(async () => {
+    const hash = await bcrypt.hash(fixtureUser.password, 10);
+    await db.none(
+      'INSERT INTO users (username, password_hash) VALUES ($1, $2)',
+      [fixtureUser.username, hash]
+    );
+  });
+
+  after(async () => {
+    await db.none('DELETE FROM users WHERE username = $1', [
+      fixtureUser.username,
+    ]);
+  });
+
+  it('redirects to /login when not logged in (negative)', async () => {
+    const agent = chai.request.agent(app);
+    try {
+      const res = await agent.get('/home').redirects(0);
+
+      expect(res).to.have.status(302);
+      expect(res).to.redirectTo(/\/login$/);
+    } finally {
+      agent.close();
+    }
+  });
+
+  it('shows the home page after a real login (positive)', async () => {
+    const agent = chai.request.agent(app);
+    try {
+      const loginRes = await agent
+        .post('/login')
+        .redirects(0)
+        .type('form')
+        .send(fixtureUser);
+
+      expect(loginRes).to.have.status(302);
+      expect(loginRes).to.redirectTo(/\/home$/);
+
+      const res = await agent.get('/home').redirects(0);
+
+      expect(res).to.have.status(200);
+      expect(res).to.be.html;
+      expect(res.text).to.include(fixtureUser.username);
+    } finally {
+      agent.close();
+    }
   });
 });
