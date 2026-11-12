@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cookly - Recipe Browser</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>Cookly Recipes</h1>
+                <p class="text-muted">
+                    Discover meals you can make with your ingredients.
+                </p>
+            </div>
+
+            <a href="/home" class="btn btn-outline-secondary">
+                Back to Home
+            </a>
+        </div>
+
+        <div class="row g-4">
+
+            {{#each recipes}}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.name}}</h5>
+
+                        <p class="card-text text-muted">
+                            {{this.description}}
+                        </p>
+
+                        <p>
+                            <strong>Prep:</strong>
+                            {{this.prep_time}} minutes
+                        </p>
+
+                        <p>
+                            <strong>Cook:</strong>
+                            {{this.cook_time}} minutes
+                        </p>
+
+                        <a href="/recipes/{{this.recipe_id}}"
+                           class="btn btn-success">
+                            View Recipe
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            {{/each}}
+
+        </div>
+
+    </div>
+
+</body>
+</html>

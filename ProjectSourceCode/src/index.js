@@ -167,6 +167,40 @@ app.get('/home', (req, res) => {
   });
 });
 
+
+ // Temporary recipe data for testing the browser
+const sampleRecipes = [
+  {
+    recipe_id: 1,
+    name: 'Scrambled Eggs',
+    description: 'Simple and fluffy scrambled eggs.',
+    prep_time: 5,
+    cook_time: 5
+  },
+  {
+    recipe_id: 2,
+    name: 'Chicken Fried Rice',
+    description: 'A quick rice dish with chicken and vegetables.',
+    prep_time: 15,
+    cook_time: 20
+  },
+  {
+    recipe_id: 3,
+    name: 'Spaghetti Marinara',
+    description: 'Classic spaghetti with tomato sauce.',
+    prep_time: 10,
+    cook_time: 20
+  }
+];
+
+// Display the recipe browser
+app.get('/recipes', (req, res) => {
+  res.render('pages/recipes', {
+    recipes: sampleRecipes
+  });
+});
+
+
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
     res.clearCookie('connect.sid');
