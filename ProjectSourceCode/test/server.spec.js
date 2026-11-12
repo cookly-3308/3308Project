@@ -1,5 +1,6 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const {randomUUID} = require('crypto');
 const app = require('../src/app');
 const {db, pgp} = require('../src/db');
 const bcrypt = require('bcryptjs');
@@ -24,68 +25,69 @@ describe('Welcome route', () => {
 
 
 describe('Registration route', () => {
-  it('registers a new user successfully', async () => {
-    const username = 'lab10_test_user';
-    const password = 'testPassword123';
-    const email = 'lab10_test@example.com';
+  // A unique username and email per run, so leftover rows from an earlier
+  // run can never collide with this one.
+  const runId = randomUUID().slice(0, 8);
+  const username = `lab10_${runId}`;
+  const email = `lab10_${runId}@example.com`;
+  const password = 'testPassword123';
 
-    await db.none('DELETE FROM users WHERE username = $1', [username]);
+  const deleteTestUser = () =>
+    db.none('DELETE FROM users WHERE username = $1 OR email = $2', [
+      username,
+      email,
+    ]);
 
-    try {
-      const res = await chai.request(app)
-        .post('/register')
-        .redirects(0)
-        .type('form')
-        .send({username, password, email});
+  // Targeted cleanup: only this test's user is removed, before and after
+  // every test (afterEach also runs when a test fails).
+  beforeEach(deleteTestUser);
+  afterEach(deleteTestUser);
 
-      expect(res).to.have.status(302);
-      expect(res).to.redirectTo(/\/login$/);
+  it('registers a new user successfully (positive)', async () => {
+    const res = await chai
+      .request(app)
+      .post('/register')
+      .redirects(0)
+      .type('form')
+      .send({username, password, email});
 
-      const users = await db.any(
-        'SELECT * FROM users WHERE username = $1',
-        [username]
-      );
+    // Documented success response: 302 redirect to /login
+    expect(res).to.have.status(302);
+    expect(res).to.redirectTo(/\/login$/);
 
-      expect(users).to.have.lengthOf(1);
+    // Exactly one matching row with the expected fields
+    const users = await db.any('SELECT * FROM users WHERE username = $1', [
+      username,
+    ]);
+    expect(users).to.have.lengthOf(1);
 
-      const user = users[0];
+    const user = users[0];
+    expect(user.username).to.equal(username);
+    expect(user.email).to.equal(email);
 
-      expect(user.email).to.equal(email);
-      expect(user.password_hash.trim()).to.not.equal(password);
-      expect(await bcrypt.compare(password, user.password_hash.trim()))
-        .to.equal(true);
-    } finally {
-      await db.none('DELETE FROM users WHERE username = $1', [username]);
-    }
+    // Password is stored as a bcrypt hash, never as plain text
+    const storedHash = user.password_hash.trim();
+    expect(storedHash).to.not.equal(password);
+    expect(await bcrypt.compare(password, storedHash)).to.equal(true);
   });
 
+  it('rejects registration without a password (negative)', async () => {
+    const res = await chai
+      .request(app)
+      .post('/register')
+      .redirects(0)
+      .type('form')
+      .send({username, email});
 
-  it('rejects registration without a password', async () => {
-    const username = 'lab10_missing_password';
+    // Documented rejection response: 400 with the error message (not a 500)
+    expect(res).to.have.status(400);
+    expect(res).to.be.html;
+    expect(res.text).to.include('Username and password are required');
 
-    await db.none('DELETE FROM users WHERE username = $1', [username]);
-
-    try {
-      const res = await chai.request(app)
-        .post('/register')
-        .type('form')
-        .send({
-          username,
-          email: 'missing_password@example.com',
-        });
-
-      expect(res).to.have.status(400);
-
-      const user = await db.oneOrNone(
-        'SELECT * FROM users WHERE username = $1',
-        [username]
-      );
-
-      expect(user).to.be.null;
-    } finally {
-      await db.none('DELETE FROM users WHERE username = $1', [username]);
-    }
+    // No user was inserted
+    const users = await db.any('SELECT * FROM users WHERE username = $1', [
+      username,
+    ]);
+    expect(users).to.have.lengthOf(0);
   });
-
-
 });
