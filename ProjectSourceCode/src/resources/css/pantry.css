@@ -173,3 +173,71 @@ body {
     margin-top: 32px;
   }
 }
+
+
+/* Add Ingredient Form */
+
+.pantry-add-form {
+  background-color: white;
+  border: 1px solid #dbe4d9;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Keep the form hidden until the button is clicked */
+.pantry-add-form[hidden] {
+  display: none;
+}
+
+.pantry-add-form h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.pantry-add-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pantry-add-form input,
+.pantry-add-form select {
+  padding: 12px;
+  border: 1px solid #d4e0d2;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.pantry-add-form input:focus,
+.pantry-add-form select:focus {
+  outline: 2px solid #587d60;
+  outline-offset: 1px;
+}
+
+.pantry-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pantry-form-actions button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid #d4e0d2;
+  cursor: pointer;
+}
+
+.pantry-save-button {
+  background-color: #587d60;
+  color: white;
+  border: none;
+}
+
+.pantry-save-button:hover {
+  background-color: #45684d;
+}

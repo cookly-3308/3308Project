@@ -37,10 +37,60 @@
 
         <div class="pantry-section-header">
           <h2>Saved Ingredients</h2>
-          <button class="pantry-add-button" type="button">
-            + Add Manually
-          </button>
+          <button
+            class="pantry-add-button"
+            type="button"
+            id="show-add-form"
+            aria-controls="add-ingredient-form"
+            aria-expanded="false"
+          >
+          + Add Manually
+        </button>
         </div>
+
+      <!-- Add Ingredient Form -->
+      <form id="add-ingredient-form" class="pantry-add-form" hidden>
+
+        <h3>Add Ingredient</h3>
+
+          <label for="ingredient-name">Ingredient Name</label>
+          <input
+            type="text"
+            id="ingredient-name"
+            placeholder="e.g. Carrots"
+          required
+          >
+
+        <label for="ingredient-quantity">Quantity</label>
+        <input
+          type="number"
+          id="ingredient-quantity"
+          min="0.01"
+          step="any"
+          value="1"
+          required
+        >
+
+        <label for="ingredient-unit">Unit</label>
+        <select id="ingredient-unit">
+          <option value="pieces">Pieces</option>
+          <option value="cups">Cups</option>
+          <option value="pounds">Pounds</option>
+          <option value="gallons">Gallons</option>
+          <option value="ounces">Ounces</option>
+      </select>
+
+  <div class="pantry-form-actions">
+    <button type="button" id="cancel-add-ingredient">
+      Cancel
+    </button>
+    <button type="submit" class="pantry-save-button">
+      Save Ingredient
+    </button>
+  </div>
+
+</form>
+
 
         <div class="pantry-ingredients">
 
@@ -61,5 +111,6 @@
 
     </main>
   </div>
+  <script src="/js/pantry.js" defer></script>
 </body>
 </html>
