@@ -1,0 +1,110 @@
+
+/* Cookly Desktop Sidebar */
+
+.cookly-sidebar {
+    width: 250px;
+    min-width: 250px;
+    min-height: 100vh;
+    background-color: #eef4ed;
+    border-right: 1px solid #d9e3d9;
+    color: #27372b;
+}
+
+.cookly-sidebar h2 {
+    color: #477d5a;
+}
+
+.cookly-sidebar small {
+    color: #69766c;
+    letter-spacing: 1.5px;
+}
+
+.cookly-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: #27372b;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.cookly-sidebar .nav-link:hover {
+    background-color: #d9e9d8;
+}
+
+.cookly-sidebar .nav-link svg {
+    width: 20px;
+    height: 20px;
+}
+
+
+/* Cookly Sidebar Logo */
+
+.cookly-sidebar .cookly-sidebar-logo {
+    width: 30px;
+    height: 30px;
+    color: #477d5a;
+    flex-shrink: 0;
+}
+
+
+/* Active Sidebar Navigation */
+
+.cookly-sidebar .nav-link.active {
+    background-color: #d9e9d8;
+    color: #27372b;
+    font-weight: 600;
+}
+
+
+/* Cookly Homepage Welcome Section */
+
+.cookly-welcome {
+    background-color: #eef4ed;
+    color: #27372b;
+}
+
+.cookly-welcome h2 {
+    color: #27372b;
+}
+
+.cookly-welcome p {
+    color: #69766c;
+}
+
+.cookly-welcome-icon {
+    width: 22px;
+    height: 22px;
+    color: #477d5a;
+}
+
+.cookly-welcome .btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+
+/* Cookly Homepage Dashboard Cards */
+
+.cookly-dashboard-card {
+    border: 1px solid #d9e3d9;
+    border-radius: 12px;
+    transition: box-shadow 0.2s ease;
+}
+
+.cookly-dashboard-card:hover {
+    box-shadow: 0 4px 12px rgba(39, 55, 43, 0.1);
+}
+
+.cookly-dashboard-card .card-title {
+    color: #27372b;
+    font-weight: 600;
+}
+
+.cookly-card-icon {
+    width: 30px;
+    height: 30px;
+    color: #477d5a;
+}

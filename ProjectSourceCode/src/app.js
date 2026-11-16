@@ -152,6 +152,8 @@ app.get('/home', (req, res) => {
   res.render('pages/home', {
     layout: 'cookly',
     username: req.session.user.username,
+    showSidebar: true,
+    activeHome: true,
   });
 });
 

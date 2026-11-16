@@ -1,11 +1,10 @@
-<nav class="navbar navbar-dark" style="background-color: #27372b;">
+<nav class="navbar navbar-dark {{#if showMenu}}d-lg-none{{/if}}" style="background-color: #27372b;">
     <div class="container-fluid">
-
         <div class="d-flex align-items-center gap-3">
 
             {{#if showMenu}}
-            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#cooklyMenu"
-                aria-controls="cooklyMenu" aria-label="Open navigation menu">
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#cooklyMenu" aria-controls="cooklyMenu" aria-label="Open navigation menu">
                 <span class="navbar-toggler-icon"></span>
             </button>
             {{/if}}
@@ -21,7 +20,8 @@
 </nav>
 
 {{#if showMenu}}
-<div class="offcanvas offcanvas-start" tabindex="-1" id="cooklyMenu" aria-labelledby="cooklyMenuLabel">
+<div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="cooklyMenu" aria-labelledby="cooklyMenuLabel">
+
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="cooklyMenuLabel">Cookly</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -29,9 +29,18 @@
 
     <div class="offcanvas-body">
         <div class="d-grid gap-2">
-            <a href="/home" class="btn btn-outline-secondary text-start">Home</a>
-            <a href="/recipes" class="btn btn-outline-secondary text-start">Browse Recipes</a>
-            <a href="/logout" class="btn btn-outline-danger text-start">Logout</a>
+            <a href="/home" class="btn btn-outline-secondary text-start">
+                Home
+            </a>
+            <a href="/pantry" class="btn btn-outline-secondary text-start">
+                My Pantry
+            </a>
+            <a href="/recipes" class="btn btn-outline-secondary text-start">
+                Browse Recipes
+            </a>
+            <a href="/logout" class="btn btn-outline-danger text-start">
+                Logout
+            </a>
         </div>
     </div>
 </div>
