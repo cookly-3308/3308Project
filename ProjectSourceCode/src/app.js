@@ -53,7 +53,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('pages/register');
+  res.render('pages/register', { layout: 'cookly' });
 });
 
 app.post('/register', async (req, res) => {
@@ -61,8 +61,9 @@ app.post('/register', async (req, res) => {
   const password = req.body.password;
   const email = req.body.email;
 
-  if (!validateRegistration({username, password})) {
+  if (!validateRegistration({ username, password })) {
     return res.status(400).render('pages/register', {
+      layout: 'cookly',
       message: 'Username and password are required',
       error: true,
     });
@@ -79,11 +80,13 @@ app.post('/register', async (req, res) => {
     console.log(err);
     if (err.code === '23505') {
       return res.status(400).render('pages/register', {
+        layout: 'cookly',
         message: 'Username or email is already taken',
         error: true,
       });
     }
     res.status(500).render('pages/register', {
+      layout: 'cookly',
       message: 'Registration failed',
       error: true,
     });
@@ -91,7 +94,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('pages/login');
+  res.render('pages/login', { layout: 'cookly' });
 });
 
 app.post('/login', async (req, res) => {
@@ -105,6 +108,7 @@ app.post('/login', async (req, res) => {
 
     if (!user || !(await bcrypt.compare(password || '', user.password_hash))) {
       return res.status(400).render('pages/login', {
+        layout: 'cookly',
         message: 'Incorrect username or password',
         error: true,
       });
@@ -128,6 +132,7 @@ app.post('/login', async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).render('pages/login', {
+      layout: 'cookly',
       message: 'Login failed',
       error: true,
     });
@@ -145,6 +150,7 @@ app.use(auth);
 
 app.get('/home', (req, res) => {
   res.render('pages/home', {
+    layout: 'cookly',
     username: req.session.user.username,
   });
 });

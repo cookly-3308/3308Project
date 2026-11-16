@@ -1,0 +1,38 @@
+<nav class="navbar navbar-dark" style="background-color: #27372b;">
+    <div class="container-fluid">
+
+        <div class="d-flex align-items-center gap-3">
+
+            {{#if showMenu}}
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#cooklyMenu"
+                aria-controls="cooklyMenu" aria-label="Open navigation menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            {{/if}}
+
+            <a class="navbar-brand fw-semibold d-flex align-items-center gap-2 mb-0"
+                href="{{#if showMenu}}/home{{else}}/login{{/if}}">
+                <i data-lucide="chef-hat" aria-hidden="true"></i>
+                <span>Cookly</span>
+            </a>
+
+        </div>
+    </div>
+</nav>
+
+{{#if showMenu}}
+<div class="offcanvas offcanvas-start" tabindex="-1" id="cooklyMenu" aria-labelledby="cooklyMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="cooklyMenuLabel">Cookly</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body">
+        <div class="d-grid gap-2">
+            <a href="/home" class="btn btn-outline-secondary text-start">Home</a>
+            <a href="/recipes" class="btn btn-outline-secondary text-start">Browse Recipes</a>
+            <a href="/logout" class="btn btn-outline-danger text-start">Logout</a>
+        </div>
+    </div>
+</div>
+{{/if}}
