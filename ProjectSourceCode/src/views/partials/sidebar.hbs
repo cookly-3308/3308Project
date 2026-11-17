@@ -20,7 +20,7 @@
             My Pantry
         </a>
 
-        <a class="nav-link" href="/recipes">
+        <a class="nav-link {{#if activeRecipes}}active{{/if}}" href="/recipes" {{#if activeRecipes}}aria-current="page"{{/if}}></a>
             <i data-lucide="book-open"></i>
             Browse Recipes
         </a>

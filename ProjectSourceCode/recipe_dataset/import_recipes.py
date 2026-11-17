@@ -75,7 +75,7 @@ result = subprocess.run(
         "db", "psql",
         "-v", "ON_ERROR_STOP=1",
         "-U", "postgres",
-        "-d", "cookly"
+        "-d", "cookly_db"
     ],
     input="\n".join(sql_commands),
     text=True,

@@ -157,34 +157,47 @@ app.get('/home', (req, res) => {
   });
 });
 
-const sampleRecipes = [
-  {
-    recipe_id: 1,
-    name: 'Scrambled Eggs',
-    description: 'Simple and fluffy scrambled eggs.',
-    prep_time: 5,
-    cook_time: 5
-  },
-  {
-    recipe_id: 2,
-    name: 'Chicken Fried Rice',
-    description: 'A quick rice dish with chicken and vegetables.',
-    prep_time: 15,
-    cook_time: 20
-  },
-  {
-    recipe_id: 3,
-    name: 'Spaghetti Marinara',
-    description: 'Classic spaghetti with tomato sauce.',
-    prep_time: 10,
-    cook_time: 20
-  }
-];
-
-// Display the recipe browser
-app.get('/recipes', (req, res) => {
+// Recipe browser, with optional search (?q=chicken)
+app.get('/recipes', async (req, res) => {
+  const search = (req.query.q || '').trim();
+  const recipes = await db.any(
+    `SELECT recipe_id, name, description, prep_time, cook_time
+     FROM recipes
+     WHERE $1 = '' OR name ILIKE '%' || $1 || '%'
+     ORDER BY name`,
+    [search]
+  );
   res.render('pages/recipes', {
-    recipes: sampleRecipes
+    layout: 'cookly',
+    showSidebar: true,
+    activeRecipes: true,
+    recipes,
+    search,
+  });
+});
+
+// One recipe with its ingredients
+app.get('/recipes/:id', async (req, res) => {
+  const recipe = await db.oneOrNone(
+    'SELECT * FROM recipes WHERE recipe_id = $1',
+    [req.params.id]
+  );
+  if (!recipe) {
+    return res.status(404).send('Recipe not found');
+  }
+  const ingredients = await db.any(
+    `SELECT ingredient_name, quantity, unit
+     FROM recipe_ingredients
+     WHERE recipe_id = $1
+     ORDER BY ingredient_name`,
+    [req.params.id]
+  );
+  res.render('pages/recipe', {
+    layout: 'cookly',
+    showSidebar: true,
+    activeRecipes: true,
+    recipe,
+    ingredients,
   });
 });
 
