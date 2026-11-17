@@ -158,3 +158,11 @@ describe('Login page', () => {
     expect(res.text).to.include('Login to Cookly');
   });
 });
+
+describe('Recipe routes', () => {
+  it('redirects to login when not logged in', async () => {
+    const res = await chai.request(app).get('/recipes').redirects(0);
+    expect(res).to.have.status(302);
+    expect(res).to.redirectTo('/login');
+  });
+});
