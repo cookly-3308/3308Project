@@ -1,0 +1,28 @@
+{{> header showMenu=true}}
+
+<div class="container py-5" style="max-width: 800px;">
+
+    <a href="/recipes" class="btn btn-outline-secondary mb-4">Back to Recipes</a>
+
+    <h1 class="fw-bold">{{recipe.name}}</h1>
+    <p class="text-muted">{{recipe.description}}</p>
+
+    <p>
+        <strong>Prep:</strong> {{recipe.prep_time}} min
+        · <strong>Cook:</strong> {{recipe.cook_time}} min
+        · <strong>Servings:</strong> {{recipe.servings}}
+    </p>
+
+    <h4 class="mt-4">Ingredients</h4>
+    <ul>
+        {{#each ingredients}}
+        <li>{{this.quantity}} {{this.unit}} {{this.ingredient_name}}</li>
+        {{/each}}
+    </ul>
+
+    <h4 class="mt-4">Instructions</h4>
+    <p style="white-space: pre-line;">{{recipe.instructions}}</p>
+
+</div>
+
+{{> footer}}
