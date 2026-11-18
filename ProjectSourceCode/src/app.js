@@ -146,6 +146,7 @@ const auth = (req, res, next) => {
   next();
 };
 
+
 app.use(auth);
 
 app.get('/home', (req, res) => {
@@ -154,6 +155,14 @@ app.get('/home', (req, res) => {
     username: req.session.user.username,
     showSidebar: true,
     activeHome: true,
+  });
+});
+
+// Pantry Page
+app.get('/pantry', (req, res) => {
+  res.render('pages/pantry', {
+    layout: false,
+    username: req.session.user.username,
   });
 });
 
