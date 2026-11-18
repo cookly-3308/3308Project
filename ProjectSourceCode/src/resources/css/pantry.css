@@ -241,3 +241,89 @@ body {
 .pantry-save-button:hover {
   background-color: #45684d;
 }
+
+/* AI Ingredient Photo Upload */
+
+.pantry-upload-description {
+  color: #66786a;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.pantry-upload-container {
+  background-color: white;
+  border: 1px solid #dbe4d9;
+  border-radius: 14px;
+  padding: 30px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Choose Photo Button */
+
+.pantry-upload-label {
+  display: inline-block;
+  background-color: #eef3ed;
+  color: #24352b;
+  border: 1px solid #d4e0d2;
+  border-radius: 10px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pantry-upload-label:hover {
+  background-color: #dce9da;
+}
+
+/* Image Preview */
+
+#photo-preview-container {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+#photo-preview-container[hidden] {
+  display: none;
+}
+
+#photo-preview {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid #dbe4d9;
+}
+
+/* Analyze Photo Button */
+
+#analyze-photo-button {
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#analyze-photo-button:disabled {
+  background-color: #b5c4b7;
+  cursor: not-allowed;
+}
+
+/* Upload Status Messages */
+
+#upload-status {
+  color: #66786a;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+}
+
+#upload-status:empty {
+  display: none;
+}

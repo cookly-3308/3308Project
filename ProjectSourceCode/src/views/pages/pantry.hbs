@@ -32,6 +32,55 @@
         <p>Manage the ingredients you already have at home.</p>
       </header>
 
+      <!-- AI Ingredient Upload -->
+    <section class="pantry-section pantry-upload-section">
+
+      <div class="pantry-section-header">
+        <h2>Scan Your Fridge</h2>
+      </div>
+
+      <p class="pantry-upload-description">
+        Upload a photo of your fridge and let AI identify
+        the ingredients you already have!
+      </p>
+
+      <div class="pantry-upload-container">
+
+        <label for="fridge-photo" class="pantry-upload-label">
+         Choose a Photo
+        </label>
+
+        <input
+          type="file"
+          id="fridge-photo"
+          accept="image/jpeg,image/png,image/webp"
+          hidden
+        >
+
+        <!-- Image Preview -->
+        <div id="photo-preview-container" hidden>
+          <img
+            id="photo-preview"
+            alt="Preview of your uploaded fridge photo"
+          >
+        </div>
+
+        <!-- Analyze Button -->
+        <button
+          type="button"
+          id="analyze-photo-button"
+          class="pantry-save-button"
+          disabled
+        >
+          Analyze Photo with AI
+        </button>
+
+        <p id="upload-status" role="status" aria-live="polite"></p>
+
+      </div>
+
+    </section>
+
       <!-- Saved Ingredients -->
       <section class="pantry-section">
 

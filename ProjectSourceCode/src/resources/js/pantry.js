@@ -66,4 +66,77 @@ document.addEventListener('DOMContentLoaded', () => {
     addButton.setAttribute('aria-expanded', 'false');
   });
 
+  // AI Ingredient Photo Upload
+
+  const photoInput = document.getElementById('fridge-photo');
+  const previewContainer = document.getElementById('photo-preview-container');
+  const photoPreview = document.getElementById('photo-preview');
+  const analyzeButton = document.getElementById('analyze-photo-button');
+  const uploadStatus = document.getElementById('upload-status');
+
+  // Maximum image size: 5 MB
+  const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+  let previewUrl = null;
+
+  // Handle selecting a fridge photo
+  photoInput.addEventListener('change', () => {
+
+    // Reset the previous selection
+    analyzeButton.disabled = true;
+    previewContainer.hidden = true;
+    photoPreview.removeAttribute('src');
+    uploadStatus.textContent = '';
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      previewUrl = null;
+    }
+
+    const file = photoInput.files[0];
+
+    // User canceled the file selection
+    if (!file) {
+      return;
+    }
+
+    // Validate image format
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      uploadStatus.textContent = 'Please select a JPG, PNG, or WebP image.';
+      photoInput.value = '';
+      return;
+    }
+
+    // Validate image size
+    if (file.size > MAX_IMAGE_SIZE) {
+      uploadStatus.textContent = 'Image must be smaller than 5 MB.';
+      photoInput.value = '';
+      return;
+    }
+
+    // Display the selected image
+    previewUrl = URL.createObjectURL(file);
+    photoPreview.src = previewUrl;
+    previewContainer.hidden = false;
+
+    // Enable the Analyze button
+    analyzeButton.disabled = false;
+    uploadStatus.textContent = 'Photo ready for analysis.';
+
+  });
+
+  // Analyze button placeholder (Gemini integration comes next)
+  analyzeButton.addEventListener('click', () => {
+    uploadStatus.textContent =
+      'Photo analysis will be available once Gemini is connected.';
+  });
+
+  // Release the temporary preview URL when leaving the page
+  window.addEventListener('pagehide', () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+  });
+
 });
