@@ -9,6 +9,7 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const { db } = require('./db');
+const validateRegistration = require('./validateRegistration');
 
 // *****************************************************
 // <!-- Section 2 : App Settings -->
@@ -52,7 +53,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  res.render('pages/register');
+  res.render('pages/register', { layout: 'cookly' });
 });
 
 app.post('/register', async (req, res) => {
@@ -60,8 +61,9 @@ app.post('/register', async (req, res) => {
   const password = req.body.password;
   const email = req.body.email;
 
-  if (!username || !password) {
+  if (!validateRegistration({ username, password })) {
     return res.status(400).render('pages/register', {
+      layout: 'cookly',
       message: 'Username and password are required',
       error: true,
     });
@@ -78,11 +80,13 @@ app.post('/register', async (req, res) => {
     console.log(err);
     if (err.code === '23505') {
       return res.status(400).render('pages/register', {
+        layout: 'cookly',
         message: 'Username or email is already taken',
         error: true,
       });
     }
     res.status(500).render('pages/register', {
+      layout: 'cookly',
       message: 'Registration failed',
       error: true,
     });
@@ -90,7 +94,7 @@ app.post('/register', async (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('pages/login');
+  res.render('pages/login', { layout: 'cookly' });
 });
 
 app.post('/login', async (req, res) => {
@@ -104,6 +108,7 @@ app.post('/login', async (req, res) => {
 
     if (!user || !(await bcrypt.compare(password || '', user.password_hash))) {
       return res.status(400).render('pages/login', {
+        layout: 'cookly',
         message: 'Incorrect username or password',
         error: true,
       });
@@ -127,6 +132,7 @@ app.post('/login', async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).render('pages/login', {
+      layout: 'cookly',
       message: 'Login failed',
       error: true,
     });
@@ -145,7 +151,10 @@ app.use(auth);
 
 app.get('/home', (req, res) => {
   res.render('pages/home', {
+    layout: 'cookly',
     username: req.session.user.username,
+    showSidebar: true,
+    activeHome: true,
   });
 });
 
@@ -156,6 +165,51 @@ app.get('/pantry', (req, res) => {
     username: req.session.user.username,
   });
 });
+
+// Recipe browser, with optional search (?q=chicken)
+app.get('/recipes', async (req, res) => {
+  const search = (req.query.q || '').trim();
+  const recipes = await db.any(
+    `SELECT recipe_id, name, description, prep_time, cook_time
+     FROM recipes
+     WHERE $1 = '' OR name ILIKE '%' || $1 || '%'
+     ORDER BY name`,
+    [search]
+  );
+  res.render('pages/recipes', {
+    layout: 'cookly',
+    showSidebar: true,
+    activeRecipes: true,
+    recipes,
+    search,
+  });
+});
+
+// One recipe with its ingredients
+app.get('/recipes/:id', async (req, res) => {
+  const recipe = await db.oneOrNone(
+    'SELECT * FROM recipes WHERE recipe_id = $1',
+    [req.params.id]
+  );
+  if (!recipe) {
+    return res.status(404).send('Recipe not found');
+  }
+  const ingredients = await db.any(
+    `SELECT ingredient_name, quantity, unit
+     FROM recipe_ingredients
+     WHERE recipe_id = $1
+     ORDER BY ingredient_name`,
+    [req.params.id]
+  );
+  res.render('pages/recipe', {
+    layout: 'cookly',
+    showSidebar: true,
+    activeRecipes: true,
+    recipe,
+    ingredients,
+  });
+});
+
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
