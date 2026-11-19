@@ -10,6 +10,10 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const { db } = require('./db');
 const validateRegistration = require('./validateRegistration');
+const fs = require('fs');
+const crypto = require('crypto');
+const multer = require('multer');
+const convertHeic = require('heic-convert');
 
 // *****************************************************
 // <!-- Section 2 : App Settings -->
@@ -26,6 +30,15 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'resources')));
 app.use(express.urlencoded({ extended: true }));
+// Uploaded fridge photos are saved here, outside the public resources folder,
+// so only the logged in owner can view them through /photos/:id
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024, files: 5 },
+});
 
 app.use(
   session({
@@ -210,6 +223,116 @@ app.get('/recipes/:id', async (req, res) => {
   });
 });
 
+// *****************************************************
+// Fridge Photo Storage API
+// *****************************************************
+
+const imageTypes = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+};
+
+// Upload up to 5 photos as multipart form data in a field named "photos"
+app.post('/photos', (req, res, next) => {
+  upload.array('photos', 5)(req, res, err => {
+    if (err) {
+      return res.status(400).json({ error: 'Upload up to 5 photos, 15 MB each' });
+    }
+    next();
+  });
+}, async (req, res) => {
+  const files = req.files || [];
+  if (files.length === 0) {
+    return res.status(400).json({ error: 'Choose at least one photo' });
+  }
+
+  for (const file of files) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const isHeic = ext === '.heic' || ext === '.heif' ||
+      file.mimetype === 'image/heic' || file.mimetype === 'image/heif';
+    if (!isHeic && !imageTypes[file.mimetype]) {
+      return res.status(400).json({ error: 'Photos must be HEIC, JPEG, PNG, or WebP' });
+    }
+  }
+
+  const userId = req.session.user.user_id;
+  const saved = [];
+  for (const file of files) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const isHeic = ext === '.heic' || ext === '.heif' ||
+      file.mimetype === 'image/heic' || file.mimetype === 'image/heif';
+
+    // Browsers and most AI vision APIs can't read HEIC, so convert it to JPEG
+    let buffer = file.buffer;
+    let mimeType = file.mimetype;
+    if (isHeic) {
+      try {
+        buffer = Buffer.from(await convertHeic({ buffer: file.buffer, format: 'JPEG', quality: 0.9 }));
+      } catch (err) {
+        console.log(err);
+        return res.status(400).json({ error: `Could not read ${file.originalname}` });
+      }
+      mimeType = 'image/jpeg';
+    }
+
+    const fileName = `${userId}-${crypto.randomUUID()}${imageTypes[mimeType]}`;
+    await fs.promises.writeFile(path.join(uploadDir, fileName), buffer);
+    const photo = await db.one(
+      `INSERT INTO user_photos (user_id, image_path, mime_type)
+       VALUES ($1, $2, $3)
+       RETURNING photo_id, mime_type, status, uploaded_at`,
+      [userId, fileName, mimeType]
+    );
+    saved.push(photo);
+  }
+
+  res.status(201).json({ photos: saved });
+});
+
+// List the logged in user's photos
+app.get('/photos', async (req, res) => {
+  const photos = await db.any(
+    `SELECT photo_id, mime_type, status, uploaded_at, processed_at
+     FROM user_photos
+     WHERE user_id = $1
+     ORDER BY uploaded_at DESC`,
+    [req.session.user.user_id]
+  );
+  res.json({ photos });
+});
+
+// Return the image file itself, only to its owner
+app.get('/photos/:id', async (req, res) => {
+  if (!/^\d+$/.test(req.params.id)) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  const photo = await db.oneOrNone(
+    'SELECT image_path, mime_type FROM user_photos WHERE photo_id = $1 AND user_id = $2',
+    [req.params.id, req.session.user.user_id]
+  );
+  if (!photo) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  res.type(photo.mime_type);
+  res.sendFile(path.join(uploadDir, photo.image_path));
+});
+
+// Delete a photo's row and its file, only for its owner
+app.delete('/photos/:id', async (req, res) => {
+  if (!/^\d+$/.test(req.params.id)) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  const photo = await db.oneOrNone(
+    'DELETE FROM user_photos WHERE photo_id = $1 AND user_id = $2 RETURNING image_path',
+    [req.params.id, req.session.user.user_id]
+  );
+  if (!photo) {
+    return res.status(404).json({ error: 'Photo not found' });
+  }
+  await fs.promises.rm(path.join(uploadDir, photo.image_path), { force: true });
+  res.json({ deleted: Number(req.params.id) });
+});
 
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
