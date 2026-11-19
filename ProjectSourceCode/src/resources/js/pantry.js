@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const addForm = document.getElementById('add-ingredient-form');
   const cancelButton = document.getElementById('cancel-add-ingredient');
   const ingredientContainer = document.querySelector('.pantry-ingredients');
+  const analysisLoading = document.getElementById('analysis-loading');
 
   // Show the Add Ingredient form
   addButton.addEventListener('click', () => {
@@ -126,11 +127,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   });
 
-  // Analyze button placeholder (Gemini integration comes next)
-  analyzeButton.addEventListener('click', () => {
-    uploadStatus.textContent =
-      'Photo analysis will be available once Gemini is connected.';
-  });
+  // Send the selected fridge photo to Gemini for analysis
+analyzeButton.addEventListener('click', async () => {
+  const file = photoInput.files[0];
+
+  if (!file || analyzeButton.disabled) {
+    return;
+  }
+
+  // Prepare the image for upload
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  // Prevent repeated requests while Gemini is analyzing
+  analyzeButton.disabled = true;
+  analyzeButton.textContent = 'Analyzing Photo...';
+  uploadStatus.textContent = '';
+  analysisLoading.hidden = false;
+
+  try {
+    const response = await fetch('/api/pantry/analyze', {
+      method: 'POST',
+      body: formData,
+    });
+
+    // Handle expired login sessions
+    if (response.redirected) {
+      throw new Error('Your session has expired. Please log in again.');
+    }
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error || 'Photo analysis failed.');
+    }
+
+    // Temporarily display the recognized ingredients
+    if (result.ingredients.length === 0) {
+      uploadStatus.textContent =
+        'No recognizable ingredients found. Try another photo.';
+    } else {
+      uploadStatus.textContent =
+        `Gemini found: ${result.ingredients.join(', ')}`;
+    }
+
+    console.log('Detected ingredients:', result.ingredients);
+
+  } catch (error) {
+    uploadStatus.textContent = error.message;
+    console.error('Photo analysis error:', error);
+
+  } finally {
+    analysisLoading.hidden = true;
+    analyzeButton.disabled = false;
+    analyzeButton.textContent = 'Analyze Photo with AI';
+    analysisLoading.hidden = true;
+  }
+});
 
   // Release the temporary preview URL when leaving the page
   window.addEventListener('pagehide', () => {

@@ -10,6 +10,8 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const { db } = require('./db');
 const validateRegistration = require('./validateRegistration');
+const multer = require('multer');
+const { GoogleGenAI } = require('@google/genai');
 
 // *****************************************************
 // <!-- Section 2 : App Settings -->
@@ -26,6 +28,24 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'resources')));
 app.use(express.urlencoded({ extended: true }));
+
+// Configure fridge photo uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Maximum 5 MB
+    files: 1,
+  },
+  fileFilter: (req, file, callback) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (!allowedTypes.includes(file.mimetype)) {
+      return callback(new Error('Only JPG, PNG, and WebP images are allowed.'));
+    }
+
+    callback(null, true);
+  },
+});
 
 app.use(
   session({
@@ -163,6 +183,133 @@ app.get('/pantry', (req, res) => {
   res.render('pages/pantry', {
     layout: false,
     username: req.session.user.username,
+  });
+});
+
+// AI Ingredient Recognition
+app.post('/api/pantry/analyze', (req, res) => {
+
+  // Handle image uploads and validation errors
+  upload.single('photo')(req, res, async (uploadError) => {
+    if (uploadError) {
+      return res.status(400).json({
+        error: uploadError.message,
+      });
+    }
+
+    // Make sure a photo was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'Please upload a fridge photo.',
+      });
+    }
+
+    // Verify the actual image format using file signatures
+    const buffer = req.file.buffer;
+    const isJpeg = buffer.length >= 3 &&
+      buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]));
+
+    const isPng = buffer.length >= 8 &&
+      buffer.subarray(0, 8).equals(
+        Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])
+      );
+
+    const isWebp = buffer.length >= 12 &&
+      buffer.toString('ascii', 0, 4) === 'RIFF' &&
+      buffer.toString('ascii', 8, 12) === 'WEBP';
+
+    const detectedType = isJpeg ? 'image/jpeg'
+      : isPng ? 'image/png'
+      : isWebp ? 'image/webp'
+      : null;
+
+    if (!detectedType || detectedType !== req.file.mimetype) {
+      return res.status(400).json({
+        error: 'Invalid image format.',
+      });
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({
+        error: 'Gemini API is not configured.',
+      });
+    }
+
+    try {
+      const ai = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY,
+      });
+
+      // Ask Gemini to identify visible food ingredients
+      const startTime = Date.now();
+      console.log('Sending image to Gemini...');
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash-lite',
+        contents: [
+          {
+            text: `Identify the food ingredients visible in this refrigerator photo.
+
+              Return a list of unique ingredient names.
+
+              Rules:
+              - Include only ingredients you can reasonably identify.
+              - Do not invent ingredients that are not visible.
+              - Use simple names such as "Milk", "Eggs", or "Tomatoes".
+              - Do not guess quantities or expiration dates.
+            - If nothing recognizable is visible, return an empty list.`,
+          },
+          {
+            inlineData: {
+              mimeType: detectedType,
+              data: buffer.toString('base64'),
+            },
+          },
+        ],
+        config: {
+          httpOptions: {
+            timeout: 90000,
+            retryOptions: {
+              attempts: 1
+            }
+          },
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'OBJECT',
+            properties: {
+              ingredients: {
+                type: 'ARRAY',
+                items: {
+                  type: 'STRING',
+                },
+              },
+            },
+            required: ['ingredients'],
+          },
+        },
+      });
+
+      console.log(
+        `Gemini responded in ${((Date.now() - startTime) / 1000).toFixed(1)} seconds`
+      );
+
+      const result = JSON.parse(response.text);
+
+      if (!Array.isArray(result.ingredients) ||
+          !result.ingredients.every(name => typeof name === 'string')) {
+        throw new Error('Unexpected Gemini response format');
+      }
+
+      return res.json({
+        ingredients: result.ingredients,
+      });
+
+    } catch (error) {
+      console.error('Gemini ingredient analysis failed:', error.message);
+
+      return res.status(502).json({
+        error: 'Unable to analyze the photo. Please try again.',
+      });
+    }
   });
 });
 

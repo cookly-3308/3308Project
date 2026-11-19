@@ -327,3 +327,33 @@ body {
 #upload-status:empty {
   display: none;
 }
+
+/* Loading Circle */
+.analysis-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+  color: #3c815a;
+  font-size: 14px;
+}
+
+.analysis-loading[hidden] {
+  display: none;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #d5e5d9;
+  border-top-color: #3c815a;
+  border-radius: 50%;
+  animation: spinner-rotate 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
