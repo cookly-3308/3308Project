@@ -77,9 +77,33 @@
 
         <div id="analysis-loading" class="analysis-loading" hidden>
           <div class="loading-spinner"></div>
-            <span>Analyzing your fridge... This may take a little while.</span>
-          </div>
+          <span>Analyzing your fridge... This may take a little while.</span>
+        </div>
         <p id="upload-status" role="status" aria-live="polite"></p>
+        <!-- AI Ingredient Confirmation -->
+        <div id="ingredient-confirmation" class="ingredient-confirmation" hidden>
+          <h3>Review Detected Ingredients</h3>
+            <p>Remove incorrect ingredients or add any that Gemini missed.</p>
+
+          <div id="detected-ingredients-list"></div>
+
+          <div class="confirmation-add">
+            <input
+              type="text"
+              id="missing-ingredient"
+              placeholder="Add a missing ingredient"
+              maxlength="100"
+            >
+
+            <button type="button" id="add-missing-ingredient">
+              Add
+            </button>
+          </div>
+
+          <button type="button" id="confirm-ingredients">
+            Add Ingredients to Pantry
+          </button>
+        </div>
 
       </div>
 

@@ -328,6 +328,136 @@ body {
   display: none;
 }
 
+/* =========================================
+   AI Ingredient Confirmation
+   ========================================= */
+
+.ingredient-confirmation {
+  margin-top: 24px;
+  padding: 20px;
+  background-color: #f5f9f5;
+  border: 1px solid #d5e5d9;
+  border-radius: 12px;
+}
+
+/* Keep the confirmation section hidden until Gemini finishes */
+.ingredient-confirmation[hidden] {
+  display: none;
+}
+
+.ingredient-confirmation h3 {
+  margin: 0 0 8px;
+  color: #2f6043;
+  font-size: 20px;
+}
+
+.ingredient-confirmation > p {
+  margin: 0 0 18px;
+  color: #66756a;
+  font-size: 14px;
+}
+
+/* List of ingredients detected by Gemini */
+#detected-ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+/* Individual ingredient row */
+.detected-ingredient {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: white;
+  border: 1px solid #dce8df;
+  border-radius: 8px;
+}
+
+.detected-ingredient input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #d5e5d9;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Remove an incorrectly detected ingredient */
+.remove-detected-ingredient {
+  padding: 6px 10px;
+  background-color: #fff1f1;
+  color: #a43b3b;
+  border: 1px solid #f0caca;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.remove-detected-ingredient:hover {
+  background-color: #fbdede;
+}
+
+/* Add an ingredient Gemini missed */
+.confirmation-add {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.confirmation-add input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #cbdccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+#add-missing-ingredient {
+  padding: 10px 16px;
+  background-color: #e3efe6;
+  color: #2f6043;
+  border: 1px solid #cbdccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#add-missing-ingredient:hover {
+  background-color: #d4e7d9;
+}
+
+/* Add all confirmed ingredients to the pantry */
+#confirm-ingredients {
+  width: 100%;
+  padding: 12px 18px;
+  background-color: #3c815a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#confirm-ingredients:hover {
+  background-color: #306b49;
+}
+
+/* Keep the interface usable on smaller screens */
+@media (max-width: 600px) {
+  .confirmation-add {
+    flex-direction: column;
+  }
+
+  .detected-ingredient {
+    padding: 10px;
+  }
+}
+
 /* Loading Circle */
 .analysis-loading {
   display: flex;
@@ -356,4 +486,49 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Ingredient confirmation with quantities */
+.detected-ingredient {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.detected-ingredient-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detected-ingredient-name-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.detected-ingredient-quantity-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detected-ingredient-quantity-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #66756a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detected-ingredient-quantity-row input,
+.detected-ingredient-quantity-row select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #d5e5d9;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
 }
