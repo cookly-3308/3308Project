@@ -166,3 +166,11 @@ describe('Recipe routes', () => {
     expect(res).to.redirectTo('/login');
   });
 });
+
+describe('Photo storage routes', () => {
+  it('redirects to login when not logged in', async () => {
+    const res = await chai.request(app).get('/photos').redirects(0);
+    expect(res).to.have.status(302);
+    expect(res).to.redirectTo('/login');
+  });
+});
