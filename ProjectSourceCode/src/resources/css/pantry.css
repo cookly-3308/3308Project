@@ -1,0 +1,243 @@
+
+/* Cookly Pantry Page */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f8faf7;
+  color: #24352b;
+}
+
+/* Main layout */
+
+.pantry-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+
+.pantry-sidebar {
+  width: 250px;
+  background-color: #eef3ed;
+  padding: 32px 24px;
+  border-right: 1px solid #dbe4d9;
+}
+
+.pantry-sidebar h1 {
+  color: #587d60;
+  font-size: 30px;
+  margin: 0;
+}
+
+.pantry-sidebar p {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #66786a;
+}
+
+.pantry-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 40px;
+}
+
+.pantry-sidebar a {
+  text-decoration: none;
+  color: #24352b;
+  padding: 14px;
+  border-radius: 10px;
+}
+
+.pantry-sidebar a:hover,
+.pantry-sidebar a.active {
+  background-color: white;
+  box-shadow: 0 2px 6px #00000010;
+}
+
+/* Main content */
+
+.pantry-main {
+  flex: 1;
+  padding: 48px 64px;
+  min-width: 0;
+}
+
+.pantry-label {
+  color: #587d60;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+
+.pantry-header h1 {
+  font-size: 36px;
+  margin: 12px 0;
+}
+
+.pantry-header > p:last-child {
+  color: #66786a;
+}
+
+/* Saved ingredients */
+
+.pantry-section {
+  margin-top: 60px;
+}
+
+.pantry-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pantry-section-header h2 {
+  font-size: 22px;
+}
+
+.pantry-add-button {
+  background-color: #eef3ed;
+  color: #24352b;
+  border: 1px solid #d4e0d2;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.pantry-add-button:hover {
+  background-color: #dce9da;
+}
+
+.pantry-ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background-color: white;
+  border: 1px solid #dbe4d9;
+  border-radius: 14px;
+  padding: 30px;
+}
+
+.pantry-ingredient-card {
+  background-color: #edf3eb;
+  border: 1px solid #d4e0d2;
+  border-radius: 10px;
+  padding: 16px 22px;
+}
+
+.pantry-ingredient-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pantry-ingredient-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #66786a;
+}
+
+.pantry-empty {
+  color: #66786a;
+}
+
+/* Responsive layout */
+
+@media (max-width: 700px) {
+  .pantry-layout {
+    flex-direction: column;
+  }
+
+  .pantry-sidebar {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .pantry-sidebar nav {
+    margin-top: 20px;
+  }
+
+  .pantry-main {
+    padding: 28px 20px;
+  }
+
+  .pantry-section {
+    margin-top: 32px;
+  }
+}
+
+
+/* Add Ingredient Form */
+
+.pantry-add-form {
+  background-color: white;
+  border: 1px solid #dbe4d9;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Keep the form hidden until the button is clicked */
+.pantry-add-form[hidden] {
+  display: none;
+}
+
+.pantry-add-form h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.pantry-add-form label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pantry-add-form input,
+.pantry-add-form select {
+  padding: 12px;
+  border: 1px solid #d4e0d2;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.pantry-add-form input:focus,
+.pantry-add-form select:focus {
+  outline: 2px solid #587d60;
+  outline-offset: 1px;
+}
+
+.pantry-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pantry-form-actions button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: 1px solid #d4e0d2;
+  cursor: pointer;
+}
+
+.pantry-save-button {
+  background-color: #587d60;
+  color: white;
+  border: none;
+}
+
+.pantry-save-button:hover {
+  background-color: #45684d;
+}

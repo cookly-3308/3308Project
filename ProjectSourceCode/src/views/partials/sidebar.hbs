@@ -1,0 +1,35 @@
+<aside class="cookly-sidebar d-none d-lg-flex flex-column p-4">
+
+    <div class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <i data-lucide="chef-hat" class="cookly-sidebar-logo" aria-hidden="true"></i>
+            <h2 class="fs-3 fw-bold mb-0">Cookly</h2>
+        </div>
+        <small class="text-uppercase">Your Kitchen</small>
+    </div>
+
+
+    <nav class="nav flex-column gap-2" aria-label="Main navigation">
+        <a class="nav-link {{#if activeHome}}active{{/if}}" href="/home" {{#if activeHome}}aria-current="page" {{/if}}>
+            <i data-lucide="house"></i>
+            Home
+        </a>
+
+        <a class="nav-link" href="/pantry">
+            <i data-lucide="carrot"></i>
+            My Pantry
+        </a>
+
+        <a class="nav-link {{#if activeRecipes}}active{{/if}}" href="/recipes" {{#if activeRecipes}}aria-current="page"{{/if}}></a>
+            <i data-lucide="book-open"></i>
+            Browse Recipes
+        </a>
+    </nav>
+
+    <div class="mt-auto pt-4">
+        <a class="nav-link" href="/logout">
+            <i data-lucide="log-out"></i>
+            Logout
+        </a>
+    </div>
+</aside>
