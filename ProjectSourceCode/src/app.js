@@ -280,43 +280,100 @@ app.get('/pantry', (req, res) => {
 // Supports optional search by recipe name.
 // Example: /recipes?q=chicken
 
-app.get('/recipes', async (req, res) => {
-  try {
-    const search =
-      typeof req.query.q === 'string'
-        ? req.query.q.trim()
-        : '';
 
-    const recipes = await db.any(
-      `SELECT
-          recipe_id,
-          name,
-          description,
-          prep_time,
-          cook_time
-       FROM recipes
-       WHERE $1 = ''
-          OR name ILIKE '%' || $1 || '%'
-       ORDER BY name`,
-      [search]
-    );
+app.get('/recipes', auth, async (req, res) => {
+  const search = (req.query.q || '').trim();
+  const pantryMode = req.query.pantry === '1';
+
+  try {
+    let recipes = [];
+    let pantryEmpty = false;
+
+    if (pantryMode) {
+      // Use the authenticated user's ID, never a shared test ID.
+      const userId =
+        req.session.user?.user_id ??
+        req.session.user?.userId ??
+        req.session.user?.id ??
+        req.session.user_id ??
+        req.session.userId;
+
+      if (!userId) {
+        return res.status(401).render('pages/recipes', {
+          layout: 'cookly',
+          showSidebar: true,
+          recipes: [],
+          search,
+          pantryMode,
+          pantryError: 'Please log in to use your saved pantry.'
+        });
+      }
+
+      const pantryCount = await db.one(
+        `SELECT COUNT(*)::int AS count
+         FROM user_ingredients
+         WHERE user_id = $1`,
+        [userId]
+      );
+
+      pantryEmpty = pantryCount.count === 0;
+
+      if (!pantryEmpty) {
+        recipes = await db.any(
+          `SELECT r.*
+           FROM recipes r
+           WHERE
+             EXISTS (
+               SELECT 1
+               FROM recipe_ingredients ri
+               WHERE ri.recipe_id = r.recipe_id
+             )
+             AND NOT EXISTS (
+               SELECT 1
+               FROM recipe_ingredients ri
+               WHERE ri.recipe_id = r.recipe_id
+                 AND NOT EXISTS (
+                   SELECT 1
+                   FROM user_ingredients ui
+                   JOIN ingredients i
+                     ON i.ingredient_id = ui.ingredient_id
+                   WHERE ui.user_id = $1
+                     AND LOWER(TRIM(i.name)) =
+                         LOWER(TRIM(ri.ingredient_name))
+                     AND (ui.quantity IS NULL OR ui.quantity > 0)
+                 )
+             )
+             AND ($2 = '' OR r.name ILIKE '%' || $2 || '%')
+           ORDER BY r.name`,
+          [userId, search]
+        );
+      }
+    } else {
+      // Existing Browse All Recipes behavior.
+      recipes = await db.any(
+        `SELECT *
+         FROM recipes
+         WHERE ($1 = '' OR name ILIKE '%' || $1 || '%')
+         ORDER BY name`,
+        [search]
+      );
+    }
 
     res.render('pages/recipes', {
       layout: 'cookly',
       showSidebar: true,
-      activeRecipes: true,
       recipes,
       search,
+      pantryMode,
+      pantryEmpty,
+      noMatches: pantryMode && !pantryEmpty && recipes.length === 0
     });
-
-  } catch (err) {
-    console.error('Recipe browser error:', err);
-
-    res.status(500).send(
-      'Unable to load recipes.'
-    );
+  } catch (error) {
+    console.error('Recipe browser error:', error);
+    res.status(500).send('Unable to load recipes.');
   }
 });
+
 
 // *****************************************************
 // Section 8: Individual Recipe Details

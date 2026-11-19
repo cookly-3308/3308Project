@@ -1,34 +1,142 @@
+
 {{> header showMenu=true}}
 
 <div class="container py-5">
 
+    <!-- Page heading -->
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
         <div>
             <h1 class="fw-bold">Browse Recipes</h1>
-            <p class="text-muted mb-0">Discover meals you can make with your ingredients.</p>
+            <p class="text-muted mb-0">
+                Discover meals you can make with your ingredients.
+            </p>
         </div>
 
-        <form action="/recipes" method="GET" class="d-flex gap-2">
-            <input type="text" name="q" value="{{search}}" class="form-control" placeholder="Search recipes">
-            <button type="submit" class="btn btn-success">Search</button>
-        </form>
+        <!-- Search and pantry controls -->
+        <div class="d-flex align-items-center flex-wrap gap-2">
+
+            <!-- Search recipes -->
+            <form action="/recipes" method="GET" class="d-flex gap-2">
+                <input
+                    type="text"
+                    name="q"
+                    value="{{search}}"
+                    class="form-control"
+                    placeholder="Search recipes"
+                    aria-label="Search recipes"
+                >
+
+                {{#if pantryMode}}
+                    <input type="hidden" name="pantry" value="1">
+                {{/if}}
+
+                <button type="submit" class="btn btn-success">
+                    Search
+                </button>
+            </form>
+
+            <!-- Match recipes against the user's pantry -->
+            <form action="/recipes" method="GET">
+                <input type="hidden" name="pantry" value="1">
+
+                <button type="submit" class="btn btn-success">
+                    See What I Can Make
+                </button>
+            </form>
+
+            <!-- Return to browsing all recipes -->
+            {{#if pantryMode}}
+                <a href="/recipes" class="btn btn-outline-secondary">
+                    Browse All Recipes
+                </a>
+            {{/if}}
+
+        </div>
     </div>
 
+    <!-- Pantry matching status -->
+    {{#if pantryMode}}
+        <div class="mb-4">
+            <h4 class="fw-semibold">Recipes From Your Pantry</h4>
+            <p class="text-muted mb-0">
+                Showing recipes that use ingredients you already have.
+            </p>
+        </div>
+    {{/if}}
+
+    <!-- User must be logged in -->
+    {{#if pantryError}}
+        <div class="alert alert-warning" role="alert">
+            {{pantryError}}
+            <a href="/login" class="alert-link">Log in</a>
+        </div>
+    {{/if}}
+
+    <!-- Pantry has no saved ingredients -->
+    {{#if pantryEmpty}}
+        <div class="alert alert-info" role="alert">
+            Your pantry is empty. Add some ingredients to discover
+            recipes you can make.
+            <a href="/pantry" class="alert-link">Go to My Pantry</a>
+        </div>
+    {{/if}}
+
+    <!-- Pantry has ingredients, but no complete matches -->
+    {{#if noMatches}}
+        <div class="alert alert-info" role="alert">
+            No recipes currently match all the ingredients in your pantry.
+            Try adding more ingredients to find additional recipes.
+        </div>
+    {{/if}}
+
+    <!-- Recipe cards -->
     <div class="row g-4">
+
         {{#each recipes}}
-        <div class="col-md-6 col-lg-4">
-            <div class="card cookly-dashboard-card h-100">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{this.name}}</h5>
-                    <p class="card-text text-muted">{{this.description}}</p>
-                    <p class="small mb-3">Prep {{this.prep_time}} min · Cook {{this.cook_time}} min</p>
-                    <a href="/recipes/{{this.recipe_id}}" class="btn btn-success mt-auto">View Recipe</a>
+            <div class="col-md-6 col-lg-4">
+                <div class="card cookly-dashboard-card h-100">
+                    <div class="card-body d-flex flex-column">
+
+                        <h5 class="card-title">
+                            {{this.name}}
+                        </h5>
+
+                        <p class="card-text text-muted">
+                            {{this.description}}
+                        </p>
+
+                        <p class="small mb-3">
+                            Prep {{this.prep_time}} min
+                            · Cook {{this.cook_time}} min
+                        </p>
+
+                        <a
+                            href="/recipes/{{this.recipe_id}}"
+                            class="btn btn-success mt-auto"
+                        >
+                            View Recipe
+                        </a>
+
+                    </div>
                 </div>
             </div>
-        </div>
+
         {{else}}
-        <p class="text-muted">No recipes found.</p>
+
+            {{#unless pantryEmpty}}
+                {{#unless pantryError}}
+                    {{#unless noMatches}}
+                        <div class="col-12">
+                            <p class="text-muted">
+                                No recipes found.
+                            </p>
+                        </div>
+                    {{/unless}}
+                {{/unless}}
+            {{/unless}}
+
         {{/each}}
+
     </div>
 
 </div>
